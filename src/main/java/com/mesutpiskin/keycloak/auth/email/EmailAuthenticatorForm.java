@@ -29,6 +29,17 @@ import java.util.Map;
 @JBossLog
 public class EmailAuthenticatorForm extends AbstractUsernameFormAuthenticator {
 
+
+    // public CredentialTypeMetadata getCredentialTypeMetadata(CredentialTypeMetadataContext metadataContext) {
+    //     return CredentialTypeMetadata.builder()
+    //             .type("otp")
+    //             .category(CredentialTypeMetadata.Category.TWO_FACTOR)
+    //             .displayName("Email One Time Passcode")
+    //             .helpText("Emails a 6 digit code valid for 5 minutes")                
+    //             .removeable(false)
+    //             .build(session);
+    // }
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
         challenge(context, null);
@@ -69,7 +80,7 @@ public class EmailAuthenticatorForm extends AbstractUsernameFormAuthenticator {
         }
 
         String code = SecretGenerator.getInstance().randomString(length, SecretGenerator.DIGITS);
-        sendEmailWithCode(context.getSession(), context.getRealm(), context.getUser(), code, ttl);
+        sendEmailWithCode(context.getSession(), context.getRealm(), context.getUser(), code, Math.round(ttl/60));
         session.setAuthNote(EmailConstants.CODE, code);
         session.setAuthNote(EmailConstants.CODE_TTL, Long.toString(System.currentTimeMillis() + (ttl * 1000L)));
     }
